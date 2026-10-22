@@ -1,0 +1,24 @@
+name = "SBIExamples"
+uuid = "7ac56e36-085c-4ad7-92b4-2719092e1b78"
+version = "0.1.0"
+
+[deps]
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+GpABC = "e850a1a4-d859-11e8-3d54-a195e6d045d3"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[compat]
+# GpABC 0.1.1 uses OrdinaryDiffEqAlgorithm, removed from newer exports.
+OrdinaryDiffEq = "~6.98.0"
+GpABC = "0.1"
+Distributions = "0.25"
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
