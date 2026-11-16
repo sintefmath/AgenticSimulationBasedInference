@@ -1,0 +1,17 @@
+[project]
+name = "mlmc-reservoir"
+version = "0.1.0"
+description = "Multilevel Monte Carlo step by step on a toy 1D reservoir simulator (notebook, figures, slides)"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.5",
+    "pandas>=3.1.1",
+    "scipy>=1.18.1",
+]
+
+[dependency-groups]
+dev = [
+    "nbconvert>=7.17.2",
+]
