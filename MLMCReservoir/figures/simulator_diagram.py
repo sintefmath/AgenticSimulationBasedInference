@@ -1,13 +1,14 @@
 """Make simulator_diagram.png for mlmc_reservoir.ipynb: what goes in and out of simulate(theta, level).
 
 Run from the repo root:
-    .venv/bin/python literature/figures/simulator_diagram.py
+    uv run --project MLMCReservoir python MLMCReservoir/figures/simulator_diagram.py
 """
-import json
 from pathlib import Path
 
 import matplotlib
 import numpy as np
+
+import simulator_1d as sim
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -17,20 +18,15 @@ from matplotlib.colors import LinearSegmentedColormap
 
 HERE = Path(__file__).parent
 
-# 1D simulator: taken from the notebook, so the figure always matches it
-nb = json.loads((HERE.parent / "mlmc_reservoir.ipynb").read_text(encoding="utf-8"))
-sim = {}
-exec(next("".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code" and "def simulate" in "".join(c["source"])), sim)
-
 LEVEL = 0
 cmap = LinearSegmentedColormap.from_list("oil_water", ["#1a7f2e", "#8fd3f4"])   # green = oil, blue = water
-theta = np.random.default_rng(7).standard_normal(sim["N_THETA"])
-n_fine, n = sim["CELLS"][-1], sim["CELLS"][LEVEL]
-k_fine = np.exp(sim["KL"] @ theta)
-k_level = sim["permeability"](theta, LEVEL)
-P = sim["simulate"](theta, LEVEL)
+theta = np.random.default_rng(7).standard_normal(sim.N_THETA)
+n_fine, n = sim.CELLS[-1], sim.CELLS[LEVEL]
+k_fine = np.exp(sim.KL @ theta)
+k_level = sim.permeability(theta, LEVEL)
+P = sim.simulate(theta, LEVEL)
 YEARS = [2, 5, 10]
-S_t = np.array([sim["simulate"](theta, LEVEL, t_end=y / 10 * sim["T_END"], return_state=True)[1] for y in YEARS])
+S_t = np.array([sim.simulate(theta, LEVEL, t_end=y / 10 * sim.T_END, return_state=True)[1] for y in YEARS])
 
 fig = plt.figure(figsize=(15, 3.8))
 gs = fig.add_gridspec(1, 5, width_ratios=[1, 1.2, 1.2, 1.2, 0.8], wspace=0.85, left=0.035, right=0.985, top=0.68, bottom=0.18)
@@ -47,7 +43,7 @@ ax[2].plot((np.arange(n_fine) + 0.5) / n_fine, k_fine, color="#8c564b", alpha=0.
 ax[2].stairs(k_level, np.linspace(0, 1, n + 1), color="#8c564b", lw=2)
 ax[2].set(title=f"Averaged to the grid\nlevel {LEVEL}: {n} cells", yscale="log", xlim=(0, 1), xlabel="injector → producer", yticks=[])
 
-ax[3].imshow(S_t, cmap=cmap, vmin=sim["SWC"], vmax=1 - sim["SOR"], aspect="auto", extent=[0, 1, len(YEARS), 0])
+ax[3].imshow(S_t, cmap=cmap, vmin=sim.SWC, vmax=1 - sim.SOR, aspect="auto", extent=[0, 1, len(YEARS), 0])
 ax[3].vlines(np.arange(1, n) / n, 0, len(YEARS), color="white", lw=0.6)
 ax[3].hlines(np.arange(1, len(YEARS)), 0, 1, color="white", lw=3)
 ax[3].set(title="Water–oil flow\nblue = water, green = oil", xticks=[], yticks=[], xlabel="injector → producer")
