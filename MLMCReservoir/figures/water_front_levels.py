@@ -4,11 +4,9 @@
 The GIF uses the same canvas, panel layout and crop as that cell's output, so its two panels sit exactly
 under the two panels of the cell (same width and height on screen).
 Run from the repo root:
-    .venv/bin/python literature/figures/water_front_levels.py
+    uv run --project MLMCReservoir python MLMCReservoir/figures/water_front_levels.py
 """
-import contextlib
 import io
-import json
 from pathlib import Path
 
 import matplotlib
@@ -18,21 +16,18 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from PIL import Image
 
+from reservoir_plots import EXAMPLE_SEED, plot_one_rock
+from simulator_1d import CELLS, N_THETA, SWC, T_END, simulate
+
 HERE = Path(__file__).parent
 DPI = 100                                            # same as the notebook's inline figures
 YEARS = np.linspace(0, 10, 51)                       # one frame every 0.2 years
 FRAME_MS, PAUSE_MS = 120, 2000                       # ~6 s of flow, then hold the last frame for 2 s
 
-# Run the notebook's simulator cell and its "one rock" figure cell, to get θ, the simulator and the static figure
-nb = json.loads((HERE.parent / "mlmc_reservoir.ipynb").read_text(encoding="utf-8"))
-code = ["".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code"]
-ns = {}
-with contextlib.redirect_stdout(io.StringIO()):
-    exec(next(s for s in code if "def simulate" in s), ns)
-    exec(next(s for s in code if s.startswith("theta = rng.standard_normal")), ns)
-static = ns["fig"]
+# Use the same rock and static layout as the notebook's one-rock example.
+theta = np.random.default_rng(EXAMPLE_SEED).standard_normal(N_THETA)
+static, _ = plot_one_rock(theta)
 crop = static.get_tightbbox(static.canvas.get_renderer()).padded(plt.rcParams["savefig.pad_inches"])
-theta, simulate, CELLS, T_END, SWC = ns["theta"], ns["simulate"], ns["CELLS"], ns["T_END"], ns["SWC"]
 
 # Water saturation and recovery so far, per frame and level
 sat = [[None] * 3 for _ in YEARS]
@@ -46,6 +41,7 @@ for k, yr in enumerate(YEARS):
 
 fig, ax = plt.subplots(1, 2, figsize=static.get_size_inches())
 fig.subplots_adjust(**{k: getattr(static.subplotpars, k) for k in ["left", "right", "bottom", "top", "wspace"]})
+plt.close(static)
 ax_s, ax_p = ax                                      # left: water (the cause), right: recovery (its sum over time)
 s_lines = [ax_s.step((np.arange(CELLS[l]) + 0.5) / CELLS[l], sat[0][l], where="mid", label=f"level {l} ({CELLS[l]} cells)")[0] for l in range(3)]
 p_lines = [ax_p.plot([], [], label=f"level {l} ({CELLS[l]} cells)")[0] for l in range(3)]

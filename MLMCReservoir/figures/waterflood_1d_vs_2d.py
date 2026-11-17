@@ -1,9 +1,8 @@
 """Make waterflood_1d_vs_2d.png for mlmc_reservoir.ipynb: the same waterflood in 1D and in 2D.
 
 Run from the repo root (needs scipy, which the notebook itself does not):
-    uv run --with scipy python literature/figures/waterflood_1d_vs_2d.py
+    uv run --project MLMCReservoir python MLMCReservoir/figures/waterflood_1d_vs_2d.py
 """
-import json
 from pathlib import Path
 
 import matplotlib
@@ -11,17 +10,14 @@ import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 
+import simulator_1d as sim1d
+from simulator_1d import DFMAX, PHI, SOR, SWC, T_END, mobilities
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 HERE = Path(__file__).parent
-
-# 1D simulator: taken from the notebook, so the figure always matches it
-nb = json.loads((HERE.parent / "mlmc_reservoir.ipynb").read_text(encoding="utf-8"))
-sim1d = {}
-exec(next("".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code" and "def simulate" in "".join(c["source"])), sim1d)
-PHI, SWC, SOR, T_END, DFMAX, mobilities = (sim1d[k] for k in ["PHI", "SWC", "SOR", "T_END", "DFMAX", "mobilities"])
 
 # 2D: same fluids, square slice, p = 1 on the left edge (injector), p = 0 on the right edge (producer), no flow top/bottom
 N_THETA, CORR_LEN, N_FINE = 30, 0.2, 64
@@ -65,14 +61,14 @@ def simulate_2d(theta, t_end):
 cmap = LinearSegmentedColormap.from_list("oil_water", ["#1a7f2e", "#8fd3f4"])   # green = oil, blue = water
 norm = dict(cmap=cmap, vmin=SWC, vmax=1 - SOR)
 rng = np.random.default_rng(7)
-theta_1d, theta_2d = rng.standard_normal(sim1d["N_THETA"]), rng.standard_normal(N_THETA)
+theta_1d, theta_2d = rng.standard_normal(sim1d.N_THETA), rng.standard_normal(N_THETA)
 years = [2, 5, 10]
 
 # All panels in a column span exactly injector (x = 0) to producer (x = 1), and all columns have the same width;
 # the colour bar gets its own narrow column so it does not shrink the last scenario.
 fig, ax = plt.subplots(3, 4, figsize=(13, 9), gridspec_kw={"height_ratios": [0.3, 1, 1], "width_ratios": [1, 1, 1, 0.04]})
 for j, yr in enumerate(years):
-    _, S1 = sim1d["simulate"](theta_1d, 2, t_end=yr / 10 * T_END, return_state=True)
+    _, S1 = sim1d.simulate(theta_1d, 2, t_end=yr / 10 * T_END, return_state=True)
     ax[0, j].imshow(S1[None, :], aspect="auto", extent=[0, 1, 0, 1], **norm)
     ax[0, j].set(xticks=[], yticks=[], title=f"1D tube, after {yr} years")
     ax[1, j].plot((np.arange(S1.size) + 0.5) / S1.size, S1, color="#1f77b4")

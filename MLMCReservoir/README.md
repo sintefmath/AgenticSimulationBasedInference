@@ -6,7 +6,9 @@ Multilevel Monte Carlo (MLMC) step by step on a small toy problem: water pushes 
 
 | File | Content |
 | --- | --- |
-| `mlmc_reservoir.ipynb` | the notebook: problem, toy simulator, MLMC in four steps (test runs, number of samples, estimate, bias check), comparison with plain Monte Carlo |
+| `mlmc_reservoir.ipynb` | the notebook: problem, simulator example, MLMC in four steps (test runs, number of samples, estimate, bias check), comparison with plain Monte Carlo |
+| `simulator_1d.py` | shared toy simulator: physical/grid constants, random permeability, fluid mobilities, and waterflood simulation |
+| `reservoir_plots.py` | one-rock example seed and plot layout shared by the notebook and animation |
 | `figures/` | figures used in the notebook; each `*.py` script makes the image with the same name |
 | `presentation/mlmc_reservoir_slides.pdf` | short talk (14 slides + 7 backup slides) based on the notebook |
 
