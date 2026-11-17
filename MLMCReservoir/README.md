@@ -17,13 +17,13 @@ Multilevel Monte Carlo (MLMC) step by step on a small toy problem: water pushes 
 Python 3.12 or later, managed with [uv](https://docs.astral.sh/uv/). From the repository root:
 
 ```sh
-uv sync --project MLMCReservoir
+uv sync --project MLMCReservoir --locked
 ```
 
 Open `mlmc_reservoir.ipynb` in VS Code or Jupyter and select the kernel in `MLMCReservoir/.venv`. To run the whole notebook from the command line instead:
 
 ```sh
-uv run --project MLMCReservoir jupyter nbconvert --to notebook --execute --inplace MLMCReservoir/mlmc_reservoir.ipynb
+uv --directory MLMCReservoir run --locked jupyter nbconvert --to notebook --execute --inplace mlmc_reservoir.ipynb
 ```
 
-The run times (and so the number of samples and the speed-up) change a little from run to run, because the cost per sample is measured. To remake a figure, e.g. `uv run --project MLMCReservoir python MLMCReservoir/figures/water_front_levels.py`.
+The run times (and so the number of samples and the speed-up) change a little from run to run, because the cost per sample is measured. To remake a figure, e.g. `uv --directory MLMCReservoir run --locked python figures/water_front_levels.py`.
