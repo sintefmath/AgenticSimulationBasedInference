@@ -1,0 +1,18 @@
+# One live LLM pressure-inference experiment against fixed synthetic truth.
+# Output must not exist; choose another path or delete existing output manually.
+output: ../runs/experiment-01
+# Explicit provider:model; no silent substitution or truth-recovery guarantee.
+# Installed providers: openai-responses, openai, and openai-chat.
+# OPENAI_BASE_URL and OPENAI_API_KEY select the OpenAI-compatible endpoint.
+model: openai-responses:gpt-6.1-sol
+
+# Optional settings use these defaults when omitted.
+# Realizations per hypothesis; at least two are required.
+realizations: 50
+# Inference seed; does not change truth/observations or seed the LLM.
+seed: 7
+# Candidate budget including the initial homogeneous hypothesis, not a required count.
+# Total simulator-call budget is derived as 5 * realizations * max_evaluations.
+max_evaluations: 3
+# LLM request budget.
+max_model_calls: 6
